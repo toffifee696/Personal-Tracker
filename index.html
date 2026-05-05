@@ -10,7 +10,7 @@
 <title>Trainings-Tracker</title>
 <style>
 :root{--bg:#f5f5f0;--card:#fff;--border:rgba(0,0,0,0.1);--bm:rgba(0,0,0,0.18);--t:#1a1a1a;--t2:#666660;--t3:#999992;--acc:#1D9E75;--accl:#EAF3DE;--blue:#378ADD;--bluel:#E6F1FB;--pink:#D4537E;--pinkl:#FBEAF0;--r:12px;--rs:8px}
-@media(prefers-color-scheme:dark){:root{--bg:#111110;--card:#1c1c1a;--border:rgba(255,255,255,0.1);--bm:rgba(255,255,255,0.2);--t:#f0f0ec;--t2:#9a9a94;--t3:#555550;--accl:#0a2318;--bluel:#091c2e;--pinkl:#220d15}}
+@media(prefers-color-scheme:dark){:root{--bg:#111110;--card:#1c1c1a;--border:rgba(255,255,255,0.1);--bm:rgba(255,255,255,0.18);--t:#f0f0ec;--t2:#9a9a94;--t3:#555550;--accl:#0a2318;--bluel:#091c2e;--pinkl:#220d15}}
 *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
 body{font-family:-apple-system,BlinkMacSystemFont,'SF Pro Text',sans-serif;background:var(--bg);color:var(--t);font-size:15px}
 .main{padding:16px 16px 140px}
@@ -43,11 +43,11 @@ body{font-family:-apple-system,BlinkMacSystemFont,'SF Pro Text',sans-serif;backg
 .rf label{font-size:11px;color:var(--t3)}
 .rf input{background:var(--bg);border:0.5px solid var(--bm);border-radius:var(--rs);padding:8px 10px;font-size:15px;font-family:inherit;color:var(--t);width:100%}
 .rf input:focus{outline:none;border-color:var(--acc)}
-.pace{font-size:12px;color:var(--acc);min-height:18px;padding-bottom:4px;font-weight:500}
+.pace{font-size:12px;color:var(--t3);min-height:18px;padding-bottom:4px}
 .savebar{position:fixed;bottom:60px;left:0;right:0;padding:10px 16px;background:var(--card);border-top:0.5px solid var(--border);display:flex;align-items:center;gap:12px;z-index:99}
 .savebtn{flex:1;padding:13px;background:var(--acc);color:#fff;border:none;border-radius:var(--rs);font-size:15px;font-weight:500;font-family:inherit;cursor:pointer}
 .toast{font-size:13px;color:var(--acc);opacity:0;transition:opacity .3s;min-width:80px}
-.botnav{position:fixed;bottom:0;left:0;right:0;background:var(--card);border-top:0.5px solid var(--border);display:flex;z-index:100;padding-bottom:env(safe-area-inset-bottom,0px)}
+.botnav{position:fixed;bottom:0;left:0;right:0;background:var(--card);border-top:0.5px solid var(--border);display:flex;z-index:100;padding-bottom:env(safe-area-inset-bottom,0)}
 .nbtn{flex:1;padding:10px 0 8px;display:flex;flex-direction:column;align-items:center;gap:3px;background:none;border:none;cursor:pointer;color:var(--t3);font-size:10px;font-family:inherit}
 .nbtn.active{color:var(--acc)}
 .mgrid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px}
@@ -76,18 +76,12 @@ body{font-family:-apple-system,BlinkMacSystemFont,'SF Pro Text',sans-serif;backg
 .hmcell{aspect-ratio:1;border-radius:3px;background:var(--bg)}
 .hmleg{display:flex;gap:12px;font-size:11px;color:var(--t2);margin-top:6px;flex-wrap:wrap}
 .cw{position:relative;width:100%}
-.set-section{background:var(--card);border-radius:var(--r);border:0.5px solid var(--border);margin-bottom:6px;overflow:hidden}
-.set-row{display:flex;align-items:center;gap:10px;padding:10px 14px;border-bottom:0.5px solid var(--border)}
-.set-row:last-child{border-bottom:none}
-.set-inp{flex:1;background:transparent;border:none;font-size:15px;font-family:inherit;color:var(--t);outline:none;padding:2px 0}
-.del-btn{width:28px;height:28px;border-radius:50%;background:transparent;border:0.5px solid var(--border);color:var(--t3);font-size:20px;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;line-height:1;font-family:inherit}
-.add-row{display:flex;align-items:center;gap:8px;padding:11px 14px;color:var(--acc);font-size:14px;font-family:inherit;background:var(--card);border:0.5px solid var(--border);border-radius:var(--r);cursor:pointer;width:100%;margin-bottom:14px}
-.slbl{font-size:13px;font-weight:500;color:var(--t2);text-transform:uppercase;letter-spacing:.05em;padding:0 0 8px}
-.warn{background:var(--card);border-radius:var(--rs);padding:10px 14px;margin-bottom:14px;font-size:13px;color:var(--t2);border:0.5px solid var(--border)}
+.offline-banner{display:none;background:#FAEEDA;color:#854F0B;font-size:12px;text-align:center;padding:6px;position:fixed;top:0;left:0;right:0;z-index:200}
 </style>
 </head>
 <body>
-<div class="main">
+<div class="offline-banner" id="offlineBanner">Offline – Daten werden lokal gespeichert</div>
+<div class="main" id="mainWrap">
   <div class="page active" id="pg-tracker">
     <div class="page-title">Tracker</div>
     <div class="week-scroll" id="wchips"></div>
@@ -112,30 +106,28 @@ body{font-family:-apple-system,BlinkMacSystemFont,'SF Pro Text',sans-serif;backg
         <span><span class="lsq" style="background:#378ADD"></span>Gym</span>
         <span><span class="lsq" style="background:#D4537E"></span>Laufen</span>
       </div>
-      <div class="cw" style="height:200px"><canvas id="cwkly" role="img" aria-label="Trainings pro Woche">Trainings pro Woche</canvas></div>
+      <div class="cw" style="height:200px"><canvas id="cwkly" role="img" aria-label="Trainings pro Woche Balkendiagramm">Trainings pro Woche</canvas></div>
     </div>
-    <div class="sc"><div class="stitle">Lauf-Statistiken</div><div id="rstats"></div></div>
-    <div class="sc"><div class="stitle">Gewohnheiten – Umsetzungsrate</div><div id="hbars"></div></div>
-    <div class="sc"><div class="stitle">Streak pro Gewohnheit</div><div id="slist"></div></div>
-  </div>
-  <div class="page" id="pg-settings">
-    <div class="page-title">Einstellungen</div>
-    <div class="warn">Namen direkt bearbeiten. Mit + hinzufügen, mit x löschen.</div>
-    <div class="slbl">Gym-Einheiten</div>
-    <div class="set-section" id="set-gym"></div>
-    <button class="add-row" onclick="addItem('gym')"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>Gym-Einheit hinzufügen</button>
-    <div class="slbl">Lauf-Einheiten</div>
-    <div class="set-section" id="set-run"></div>
-    <button class="add-row" onclick="addItem('run')"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>Lauf-Einheit hinzufügen</button>
-    <div class="slbl">Gewohnheiten</div>
-    <div class="set-section" id="set-hab"></div>
-    <button class="add-row" onclick="addItem('hab')"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>Gewohnheit hinzufügen</button>
+    <div class="sc">
+      <div class="stitle">Lauf-Statistiken</div>
+      <div id="rstats"></div>
+    </div>
+    <div class="sc">
+      <div class="stitle">Gewohnheiten – Umsetzungsrate</div>
+      <div id="hbars"></div>
+    </div>
+    <div class="sc">
+      <div class="stitle">Streak pro Gewohnheit</div>
+      <div id="slist"></div>
+    </div>
   </div>
 </div>
+
 <div class="savebar" id="savebar">
   <button class="savebtn" onclick="saveAll()">Speichern</button>
   <span class="toast" id="toast">Gespeichert ✓</span>
 </div>
+
 <nav class="botnav">
   <button class="nbtn active" onclick="showPg('tracker',this)">
     <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="4" width="18" height="16" rx="2"/><line x1="3" y1="9" x2="21" y2="9"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="16" y1="2" x2="16" y2="6"/></svg>
@@ -145,40 +137,46 @@ body{font-family:-apple-system,BlinkMacSystemFont,'SF Pro Text',sans-serif;backg
     <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
     Statistiken
   </button>
-  <button class="nbtn" onclick="showPg('settings',this)">
-    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
-    Einstellungen
-  </button>
 </nav>
+
+<script>
+if('serviceWorker' in navigator){
+  const sw = `
+const CACHE='tracker-v1';
+const ASSETS=['/'];
+self.addEventListener('install',e=>{e.waitUntil(caches.open(CACHE).then(c=>c.addAll(ASSETS)).then(()=>self.skipWaiting()))});
+self.addEventListener('activate',e=>{e.waitUntil(caches.keys().then(ks=>Promise.all(ks.filter(k=>k!==CACHE).map(k=>caches.delete(k)))).then(()=>self.clients.claim()))});
+self.addEventListener('fetch',e=>{e.respondWith(caches.match(e.request).then(r=>r||fetch(e.request).then(res=>{if(res.ok){const clone=res.clone();caches.open(CACHE).then(c=>c.put(e.request,clone))}return res}).catch(()=>caches.match('/'))))});
+`;
+  const blob = new Blob([sw],{type:'application/javascript'});
+  const url = URL.createObjectURL(blob);
+  navigator.serviceWorker.register(url).catch(()=>{});
+}
+window.addEventListener('online',()=>document.getElementById('offlineBanner').style.display='none');
+window.addEventListener('offline',()=>document.getElementById('offlineBanner').style.display='block');
+if(!navigator.onLine) document.getElementById('offlineBanner').style.display='block';
+</script>
+
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
 <script>
 const WKS=8,DN=['Mo','Di','Mi','Do','Fr','Sa','So'];
-const DGYM=[{id:'push1',l:'Push I'},{id:'pull1',l:'Pull I'},{id:'legs1',l:'Legs I + Core'},{id:'push2',l:'Push II'},{id:'pull2',l:'Pull II'},{id:'legs2',l:'Legs II + Core'}];
-const DRUN=[{id:'run1',l:'Laufen'}];
-const DHAB=[{id:'h1',l:'Nicht geraucht'},{id:'h2',l:'500 kcal Defizit'},{id:'h3',l:'7+ h Schlaf'},{id:'h4',l:'2+ L Wasser'},{id:'h5',l:'Mobilisation'}];
-let cw=1,expDay=null,st={},GYM,RUN,HAB;
+const GYM=[{id:'push1',l:'Push I'},{id:'pull1',l:'Pull I'},{id:'legs1',l:'Legs I + Core'},{id:'push2',l:'Push II'},{id:'pull2',l:'Pull II'}];
+const RUN=[{id:'run_easy',l:'Zone 2 – Easy'},{id:'run_tempo',l:'Intervall'}];
+const HAB=[{id:'no_smoke',l:'Nicht geraucht'},{id:'kcal',l:'500 kcal Defizit'},{id:'sleep',l:'7+ h Schlaf'},{id:'water',l:'2+ L Wasser'},{id:'stretch',l:'Mobilisation'}];
 
-function loadCfg(){
-  try{GYM=JSON.parse(localStorage.getItem('cfg_gym'))||DGYM.map(x=>({...x}));}catch(e){GYM=DGYM.map(x=>({...x}));}
-  try{RUN=JSON.parse(localStorage.getItem('cfg_run'))||DRUN.map(x=>({...x}));}catch(e){RUN=DRUN.map(x=>({...x}));}
-  try{HAB=JSON.parse(localStorage.getItem('cfg_hab'))||DHAB.map(x=>({...x}));}catch(e){HAB=DHAB.map(x=>({...x}));}
-}
-function saveCfg(){
-  localStorage.setItem('cfg_gym',JSON.stringify(GYM));
-  localStorage.setItem('cfg_run',JSON.stringify(RUN));
-  localStorage.setItem('cfg_hab',JSON.stringify(HAB));
-}
-function sk(w,d){return'tk_w'+w+'_d'+d;}
-function loadSt(){
+let cw=1,expDay=null,st={};
+
+function sk(w,d){return'tk_w'+w+'_d'+d}
+function load(){
   st={};
-  for(let w=1;w<=WKS;w++){st[w]={};for(let d=0;d<7;d++){try{const r=localStorage.getItem(sk(w,d));st[w][d]=r?JSON.parse(r):{};}catch(e){st[w][d]={};}}}
+  for(let w=1;w<=WKS;w++){st[w]={};for(let d=0;d<7;d++){try{const r=localStorage.getItem(sk(w,d));st[w][d]=r?JSON.parse(r):{}}catch(e){st[w][d]={}}}}
 }
 function saveAll(){
-  for(let w=1;w<=WKS;w++)for(let d=0;d<7;d++){try{localStorage.setItem(sk(w,d),JSON.stringify(st[w][d]||{}));}catch(e){}}
+  for(let w=1;w<=WKS;w++)for(let d=0;d<7;d++){try{localStorage.setItem(sk(w,d),JSON.stringify(st[w][d]||{}))}catch(e){}}
   const t=document.getElementById('toast');t.style.opacity='1';setTimeout(()=>t.style.opacity='0',2000);
 }
-function tog(w,d,id){if(!st[w][d])st[w][d]={};st[w][d][id]=!st[w][d][id];renderCards();}
-function setRun(w,d,f,v){if(!st[w][d])st[w][d]={};st[w][d][f]=v;updPace(w,d);}
+function tog(w,d,id){if(!st[w][d])st[w][d]={};st[w][d][id]=!st[w][d][id];renderCards()}
+function setRun(w,d,f,v){if(!st[w][d])st[w][d]={};st[w][d][f]=v;updPace(w,d)}
 function calcPace(km,min,sec){
   const tm=(parseFloat(min)||0)+(parseFloat(sec)||0)/60,k=parseFloat(km)||0;
   if(!k||!tm)return null;
@@ -192,7 +190,7 @@ function updPace(w,d){
 }
 function renderChips(){
   const c=document.getElementById('wchips');c.innerHTML='';
-  for(let w=1;w<=WKS;w++){const b=document.createElement('button');b.className='wchip'+(w===cw?' active':'');b.textContent='Wo '+w;b.onclick=()=>{cw=w;expDay=null;renderChips();renderCards();};c.appendChild(b);}
+  for(let w=1;w<=WKS;w++){const b=document.createElement('button');b.className='wchip'+(w===cw?' active':'');b.textContent='Wo '+w;b.onclick=()=>{cw=w;expDay=null;renderChips();renderCards()};c.appendChild(b)}
 }
 function renderCards(){
   const c=document.getElementById('dcards');c.innerHTML='';
@@ -203,85 +201,27 @@ function renderCards(){
     let dots='';
     if(hg)dots+='<span class="dot" style="background:#378ADD"></span>';
     if(hr)dots+='<span class="dot" style="background:#D4537E"></span>';
-    if(hc)dots+='<span style="font-size:11px">'+hc+'/'+HAB.length+'</span>';
+    if(hc)dots+='<span style="font-size:11px">'+hc+'/5</span>';
     card.innerHTML='<div class="dhead" onclick="togDay('+d+')"><span class="dname">'+DN[d]+'</span><div class="dsum">'+dots+'<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="transform:rotate('+(open?180:0)+'deg);transition:transform .2s;flex-shrink:0"><polyline points="6 9 12 15 18 9"/></svg></div></div>';
     if(open){
       const body=document.createElement('div');body.className='dbody';
-      if(GYM.length){
-        const gl=document.createElement('div');gl.className='sec-lbl';gl.textContent='Gym';body.appendChild(gl);
-        GYM.forEach(g=>{const on=!!s[g.id];const row=document.createElement('div');row.className='crow';row.innerHTML='<div class="cb'+(on?' on':'')+'"></div><span class="clbl'+(on?' done':'')+'">'+g.l+'</span><span class="cbadge bg">Gym</span>';row.onclick=()=>tog(cw,d,g.id);body.appendChild(row);});
-      }
-      if(RUN.length){
-        const rl=document.createElement('div');rl.className='sec-lbl';rl.textContent='Laufen';body.appendChild(rl);
-        RUN.forEach(r=>{const on=!!s[r.id];const row=document.createElement('div');row.className='crow';row.innerHTML='<div class="cb'+(on?' on':'')+'"></div><span class="clbl'+(on?' done':'')+'">'+r.l+'</span><span class="cbadge rg">Laufen</span>';row.onclick=()=>tog(cw,d,r.id);body.appendChild(row);});
-        const km=s.run_km||'',mn=s.run_min||'',sc2=s.run_sec||'';
-        const ri=document.createElement('div');
-        ri.innerHTML='<div class="run-inp"><div class="rf"><label>Distanz (km)</label><input type="number" inputmode="decimal" step="0.1" min="0" placeholder="5.0" value="'+km+'" onchange="setRun('+cw+','+d+',\'run_km\',this.value)"></div><div class="rf"><label>Zeit (min)</label><input type="number" inputmode="numeric" min="0" placeholder="43" value="'+mn+'" onchange="setRun('+cw+','+d+',\'run_min\',this.value)"></div><div class="rf"><label>Sekunden</label><input type="number" inputmode="numeric" min="0" max="59" placeholder="00" value="'+sc2+'" onchange="setRun('+cw+','+d+',\'run_sec\',this.value)"></div></div><div class="pace" id="pace_'+cw+'_'+d+'"></div>';
-        body.appendChild(ri);
-      }
-      if(HAB.length){
-        const hl=document.createElement('div');hl.className='sec-lbl';hl.textContent='Gewohnheiten';body.appendChild(hl);
-        HAB.forEach(h=>{const on=!!s[h.id];const row=document.createElement('div');row.className='crow';row.innerHTML='<div class="cb'+(on?' on':'')+'"></div><span class="clbl'+(on?' done':'')+'">'+h.l+'</span><span class="cbadge hg">Habit</span>';row.onclick=()=>tog(cw,d,h.id);body.appendChild(row);});
-      }
+      body.innerHTML+='<div class="sec-lbl">Gym</div>';
+      GYM.forEach(g=>{const on=!!s[g.id];const r=document.createElement('div');r.className='crow';r.innerHTML='<div class="cb'+(on?' on':'')+'"></div><span class="clbl'+(on?' done':'')+'">'+g.l+'</span><span class="cbadge bg">Gym</span>';r.onclick=()=>tog(cw,d,g.id);body.appendChild(r)});
+      body.innerHTML+='<div class="sec-lbl">Laufen</div>';
+      RUN.forEach(r=>{const on=!!s[r.id];const row=document.createElement('div');row.className='crow';row.innerHTML='<div class="cb'+(on?' on':'')+'"></div><span class="clbl'+(on?' done':'')+'">'+r.l+'</span><span class="cbadge rg">Laufen</span>';row.onclick=()=>tog(cw,d,r.id);body.appendChild(row)});
+      const km=s.run_km||'',mn=s.run_min||'',sc2=s.run_sec||'';
+      const ri=document.createElement('div');
+      ri.innerHTML='<div class="run-inp"><div class="rf"><label>Distanz (km)</label><input type="number" inputmode="decimal" step="0.1" min="0" placeholder="5.0" value="'+km+'" onchange="setRun('+cw+','+d+',\'run_km\',this.value)"></div><div class="rf"><label>Zeit (min)</label><input type="number" inputmode="numeric" min="0" placeholder="43" value="'+mn+'" onchange="setRun('+cw+','+d+',\'run_min\',this.value)"></div><div class="rf"><label>Sekunden</label><input type="number" inputmode="numeric" min="0" max="59" placeholder="00" value="'+sc2+'" onchange="setRun('+cw+','+d+',\'run_sec\',this.value)"></div></div><div class="pace" id="pace_'+cw+'_'+d+'"></div>';
+      body.appendChild(ri);
+      body.innerHTML+='<div class="sec-lbl">Gewohnheiten</div>';
+      HAB.forEach(h=>{const on=!!s[h.id];const row=document.createElement('div');row.className='crow';row.innerHTML='<div class="cb'+(on?' on':'')+'"></div><span class="clbl'+(on?' done':'')+'">'+h.l+'</span><span class="cbadge hg">Habit</span>';row.onclick=()=>tog(cw,d,h.id);body.appendChild(row)});
       card.appendChild(body);
       setTimeout(()=>updPace(cw,d),30);
     }
     c.appendChild(card);
   }
 }
-function togDay(d){expDay=expDay===d?null:d;renderCards();if(expDay!==null)setTimeout(()=>{const cs=document.querySelectorAll('.dcard');if(cs[d])cs[d].scrollIntoView({behavior:'smooth',block:'nearest'});},80);}
-
-function renderSetList(type,elId,arr){
-  const c=document.getElementById(elId);c.innerHTML='';
-  if(!arr.length){const e=document.createElement('div');e.style.cssText='padding:12px 14px;font-size:13px;color:var(--t3)';e.textContent='Keine Einträge';c.appendChild(e);return;}
-  arr.forEach((item,i)=>{
-    const row=document.createElement('div');row.className='set-row';
-    const inp=document.createElement('input');inp.className='set-inp';inp.value=item.l;inp.placeholder='Name...';
-    inp.onchange=e=>{arr[i].l=e.target.value;saveCfg();renderCards();};
-    const del=document.createElement('button');del.className='del-btn';del.textContent='×';
-    del.onclick=()=>{arr.splice(i,1);saveCfg();renderSetList(type,elId,arr);renderCards();};
-    row.appendChild(inp);row.appendChild(del);c.appendChild(row);
-  });
-}
-function renderSettings(){
-  renderSetList('gym','set-gym',GYM);
-  renderSetList('run','set-run',RUN);
-  renderSetList('hab','set-hab',HAB);
-}
-function addItem(type){
-  const id=type+'_'+Date.now();
-  if(type==='gym')GYM.push({id,l:'Neue Einheit'});
-  else if(type==='run')RUN.push({id,l:'Neuer Lauf'});
-  else HAB.push({id,l:'Neue Gewohnheit'});
-  saveCfg();renderSettings();renderCards();
-  setTimeout(()=>{const inputs=document.getElementById('set-'+type).querySelectorAll('input');if(inputs.length)inputs[inputs.length-1].focus();},80);
-}
-
-function fmtP(p){if(!p)return'–';const pm=Math.floor(p),ps=Math.round((p-pm)*60);return pm+':'+(ps<10?'0':'')+ps+' min/km';}
-function renderStats(){
-  let tg=0,tr=0,act=0,td=WKS*7,gPW=[],rPW=[],runs=[];
-  for(let w=1;w<=WKS;w++){let g=0,r=0;for(let d=0;d<7;d++){const s=st[w][d]||{};const hg=GYM.some(x=>s[x.id]),hr=RUN.some(x=>s[x.id]);if(hg){g++;tg++;}if(hr){r++;tr++;if(s.run_km){const tm=(parseFloat(s.run_min)||0)+(parseFloat(s.run_sec)||0)/60;runs.push({km:parseFloat(s.run_km),min:tm});}}if(hg||hr)act++;}gPW.push(g);rPW.push(r);}
-  const tkm=runs.reduce((a,r)=>a+r.km,0);
-  const avgKm=runs.length?tkm/runs.length:0;
-  const bestKm=runs.length?Math.max(...runs.map(r=>r.km)):0;
-  const rwp=runs.filter(r=>r.min>0&&r.km>0);
-  const avgP=rwp.length?rwp.reduce((a,r)=>a+r.min/r.km,0)/rwp.length:0;
-  document.getElementById('smets').innerHTML=`<div class="met"><div class="mlbl">Gym-Einheiten</div><div class="mval">${tg}</div><div class="msub">gesamt</div></div><div class="met"><div class="mlbl">Laufeinheiten</div><div class="mval">${tr}</div><div class="msub">gesamt</div></div><div class="met"><div class="mlbl">Aktive Tage</div><div class="mval">${act}</div><div class="msub">von ${td}</div></div><div class="met"><div class="mlbl">Lauf-km total</div><div class="mval">${tkm.toFixed(1)}</div><div class="msub">km</div></div>`;
-  const hl2=document.getElementById('hmlbls');hl2.innerHTML='';
-  for(let i=0;i<14;i++){const e=document.createElement('div');e.className='hmlbl';e.textContent=DN[i%7];hl2.appendChild(e);}
-  const hg2=document.getElementById('hmgrid');hg2.innerHTML='';
-  for(let i=0;i<14;i++){const w=Math.floor(i/7)+1,d=i%7,sv=st[w][d]||{};const hasG=GYM.some(x=>sv[x.id]),hasR=RUN.some(x=>sv[x.id]);const cell=document.createElement('div');cell.className='hmcell';if(hasG&&hasR)cell.style.background='#5DCAA5';else if(hasG)cell.style.background='#85B7EB';else if(hasR)cell.style.background='#ED93B1';hg2.appendChild(cell);}
-  if(window._wc)window._wc.destroy();
-  const ctx=document.getElementById('cwkly').getContext('2d');
-  window._wc=new Chart(ctx,{type:'bar',data:{labels:['W1','W2','W3','W4','W5','W6','W7','W8'],datasets:[{label:'Gym',data:gPW,backgroundColor:'#378ADD',borderRadius:3},{label:'Laufen',data:rPW,backgroundColor:'#D4537E',borderRadius:3}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{x:{grid:{display:false},ticks:{color:'#888780',font:{size:11}},border:{display:false}},y:{beginAtZero:true,max:7,ticks:{stepSize:1,color:'#888780',font:{size:11}},grid:{color:'rgba(136,135,128,0.12)'},border:{display:false}}}}});
-  const rs=document.getElementById('rstats');
-  rs.innerHTML=runs.length===0?'<div style="font-size:13px;color:var(--t3);padding:4px 0">Noch keine Lauf-Daten eingetragen.</div>':`<div class="rsrow"><span class="rslbl">Gesamtdistanz</span><span>${tkm.toFixed(1)} km</span></div><div class="rsrow"><span class="rslbl">Ø Distanz</span><span>${avgKm.toFixed(1)} km</span></div><div class="rsrow"><span class="rslbl">Längster Lauf</span><span>${bestKm.toFixed(1)} km</span></div><div class="rsrow"><span class="rslbl">Ø Pace</span><span>${fmtP(avgP)}</span></div><div class="rsrow"><span class="rslbl">Anzahl Läufe</span><span>${runs.length}</span></div>`;
-  const hb=document.getElementById('hbars');hb.innerHTML='';
-  HAB.forEach(h=>{let done=0;for(let w=1;w<=WKS;w++)for(let d=0;d<7;d++)if((st[w][d]||{})[h.id])done++;const rate=Math.round(done/td*100);const col=rate>=75?'#1D9E75':rate>=40?'#BA7517':'#E24B4A';hb.innerHTML+=`<div class="hbrow"><div class="hbtop"><span>${h.l}</span><span class="hbpct">${done}/${td} · ${rate}%</span></div><div class="barbg"><div class="barfill" style="width:${rate}%;background:${col}"></div></div></div>`;});
-  const sl=document.getElementById('slist');sl.innerHTML='';
-  if(!HAB.length){sl.innerHTML='<div style="font-size:13px;color:var(--t3)">Keine Gewohnheiten definiert.</div>';return;}
-  HAB.forEach(h=>{let cur=0,max=0;for(let w=1;w<=WKS;w++)for(let d=0;d<7;d++){if((st[w][d]||{})[h.id]){cur++;max=Math.max(max,cur);}else cur=0;}sl.innerHTML+=`<div class="strow"><span>${h.l}</span><span class="stval">Aktuell: <b style="color:var(--t)">${cur}d</b> · Max: ${max}d</span></div>`;});
-}
+function togDay(d){expDay=expDay===d?null:d;renderCards();if(expDay!==null)setTimeout(()=>{const cs=document.querySelectorAll('.dcard');if(cs[d])cs[d].scrollIntoView({behavior:'smooth',block:'nearest'})},80)}
 function showPg(id,btn){
   document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
   document.querySelectorAll('.nbtn').forEach(b=>b.classList.remove('active'));
@@ -289,9 +229,39 @@ function showPg(id,btn){
   btn.classList.add('active');
   document.getElementById('savebar').style.display=id==='tracker'?'flex':'none';
   if(id==='stats')renderStats();
-  if(id==='settings')renderSettings();
 }
-loadCfg();loadSt();renderChips();renderCards();
+function fmtP(p){if(!p)return'–';const pm=Math.floor(p),ps=Math.round((p-pm)*60);return pm+':'+(ps<10?'0':'')+ps+' min/km'}
+function renderStats(){
+  let tg=0,tr=0,act=0,td=WKS*7,gPW=[],rPW=[],runs=[];
+  for(let w=1;w<=WKS;w++){let g=0,r=0;for(let d=0;d<7;d++){const s=st[w][d]||{};const hg=GYM.some(x=>s[x.id]),hr=RUN.some(x=>s[x.id]);if(hg){g++;tg++;}if(hr){r++;tr++;if(s.run_km){const tm=(parseFloat(s.run_min)||0)+(parseFloat(s.run_sec)||0)/60;runs.push({km:parseFloat(s.run_km),min:tm})}}if(hg||hr)act++;}gPW.push(g);rPW.push(r);}
+  const tkm=runs.reduce((a,r)=>a+r.km,0);
+  const avgKm=runs.length?tkm/runs.length:0;
+  const bestKm=runs.length?Math.max(...runs.map(r=>r.km)):0;
+  const rWithPace=runs.filter(r=>r.min>0&&r.km>0);
+  const avgP=rWithPace.length?rWithPace.reduce((a,r)=>a+r.min/r.km,0)/rWithPace.length:0;
+
+  document.getElementById('smets').innerHTML=`<div class="met"><div class="mlbl">Gym-Einheiten</div><div class="mval">${tg}</div><div class="msub">gesamt</div></div><div class="met"><div class="mlbl">Laufeinheiten</div><div class="mval">${tr}</div><div class="msub">gesamt</div></div><div class="met"><div class="mlbl">Aktive Tage</div><div class="mval">${act}</div><div class="msub">von ${td}</div></div><div class="met"><div class="mlbl">Lauf-km total</div><div class="mval">${tkm.toFixed(1)}</div><div class="msub">km</div></div>`;
+
+  const hl=document.getElementById('hmlbls');hl.innerHTML='';
+  for(let i=0;i<14;i++){const e=document.createElement('div');e.className='hmlbl';e.textContent=DN[i%7];hl.appendChild(e)}
+  const hg2=document.getElementById('hmgrid');hg2.innerHTML='';
+  for(let i=0;i<14;i++){const w=Math.floor(i/7)+1,d=i%7,sv=st[w][d]||{};const hg=GYM.some(x=>sv[x.id]),hr=RUN.some(x=>sv[x.id]);const cell=document.createElement('div');cell.className='hmcell';if(hg&&hr)cell.style.background='#5DCAA5';else if(hg)cell.style.background='#85B7EB';else if(hr)cell.style.background='#ED93B1';hg2.appendChild(cell)}
+
+  if(window._wc)window._wc.destroy();
+  const ctx=document.getElementById('cwkly').getContext('2d');
+  window._wc=new Chart(ctx,{type:'bar',data:{labels:['W1','W2','W3','W4','W5','W6','W7','W8'],datasets:[{label:'Gym',data:gPW,backgroundColor:'#378ADD',borderRadius:3},{label:'Laufen',data:rPW,backgroundColor:'#D4537E',borderRadius:3}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{x:{grid:{display:false},ticks:{color:'#888780',font:{size:11}},border:{display:false}},y:{beginAtZero:true,max:7,ticks:{stepSize:1,color:'#888780',font:{size:11}},grid:{color:'rgba(136,135,128,0.12)'},border:{display:false}}}}});
+
+  const rs=document.getElementById('rstats');
+  rs.innerHTML=runs.length===0?'<div style="font-size:13px;color:var(--t3);padding:4px 0">Noch keine Lauf-Daten eingetragen.</div>':`<div class="rsrow"><span class="rslbl">Gesamtdistanz</span><span>${tkm.toFixed(1)} km</span></div><div class="rsrow"><span class="rslbl">Ø Distanz</span><span>${avgKm.toFixed(1)} km</span></div><div class="rsrow"><span class="rslbl">Längster Lauf</span><span>${bestKm.toFixed(1)} km</span></div><div class="rsrow"><span class="rslbl">Ø Pace</span><span>${fmtP(avgP)}</span></div><div class="rsrow"><span class="rslbl">Anzahl Läufe</span><span>${runs.length}</span></div>`;
+
+  const hb=document.getElementById('hbars');hb.innerHTML='';
+  HAB.forEach(h=>{let done=0;for(let w=1;w<=WKS;w++)for(let d=0;d<7;d++)if((st[w][d]||{})[h.id])done++;const rate=Math.round(done/td*100);const col=rate>=75?'#1D9E75':rate>=40?'#BA7517':'#E24B4A';hb.innerHTML+=`<div class="hbrow"><div class="hbtop"><span>${h.l}</span><span class="hbpct">${done}/${td} · ${rate}%</span></div><div class="barbg"><div class="barfill" style="width:${rate}%;background:${col}"></div></div></div>`});
+
+  const sl=document.getElementById('slist');sl.innerHTML='';
+  HAB.forEach(h=>{let cur=0,max=0;for(let w=1;w<=WKS;w++)for(let d=0;d<7;d++){if((st[w][d]||{})[h.id]){cur++;max=Math.max(max,cur)}else cur=0}sl.innerHTML+=`<div class="strow"><span>${h.l}</span><span class="stval">Aktuell: <b style="color:var(--t)">${cur}d</b> · Max: ${max}d</span></div>`});
+}
+
+load();renderChips();renderCards();
 </script>
 </body>
 </html>
